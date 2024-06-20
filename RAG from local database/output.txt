@@ -1,0 +1,130 @@
+Table: album
+CREATE TABLE `album` (
+    `AlbumId` INT NOT NULL  ,
+    `Title` VARCHAR(160) NOT NULL  ,
+    `ArtistId` INT NOT NULL  
+    CONSTRAINT `PK_album` PRIMARY KEY (`albumId`)
+    CONSTRAINT `FK_album_artist` FOREIGN KEY (`ArtistId`) REFERENCES `artist` (`ArtistId`)
+);
+
+Table: artist
+CREATE TABLE `artist` (
+    `ArtistId` INT NOT NULL  ,
+    `Name` VARCHAR(120)   
+    CONSTRAINT `PK_artist` PRIMARY KEY (`artistId`)
+);
+
+Table: customer
+CREATE TABLE `customer` (
+    `CustomerId` INT NOT NULL  ,
+    `FirstName` VARCHAR(40) NOT NULL  ,
+    `LastName` VARCHAR(20) NOT NULL  ,
+    `Company` VARCHAR(80)   ,
+    `Address` VARCHAR(70)   ,
+    `City` VARCHAR(40)   ,
+    `State` VARCHAR(40)   ,
+    `Country` VARCHAR(40)   ,
+    `PostalCode` VARCHAR(10)   ,
+    `Phone` VARCHAR(24)   ,
+    `Fax` VARCHAR(24)   ,
+    `Email` VARCHAR(60) NOT NULL  ,
+    `SupportRepId` INT   
+    CONSTRAINT `PK_customer` PRIMARY KEY (`customerId`)
+    CONSTRAINT `FK_customer_employee` FOREIGN KEY (`SupportRepId`) REFERENCES `employee` (`EmployeeId`)
+);
+
+Table: employee
+CREATE TABLE `employee` (
+    `EmployeeId` INT NOT NULL  ,
+    `LastName` VARCHAR(20) NOT NULL  ,
+    `FirstName` VARCHAR(20) NOT NULL  ,
+    `Title` VARCHAR(30)   ,
+    `ReportsTo` INT   ,
+    `BirthDate` DATETIME   ,
+    `HireDate` DATETIME   ,
+    `Address` VARCHAR(70)   ,
+    `City` VARCHAR(40)   ,
+    `State` VARCHAR(40)   ,
+    `Country` VARCHAR(40)   ,
+    `PostalCode` VARCHAR(10)   ,
+    `Phone` VARCHAR(24)   ,
+    `Fax` VARCHAR(24)   ,
+    `Email` VARCHAR(60)   
+    CONSTRAINT `PK_employee` PRIMARY KEY (`employeeId`)
+    CONSTRAINT `FK_employee_employee` FOREIGN KEY (`ReportsTo`) REFERENCES `employee` (`EmployeeId`)
+);
+
+Table: genre
+CREATE TABLE `genre` (
+    `GenreId` INT NOT NULL  ,
+    `Name` VARCHAR(120)   
+    CONSTRAINT `PK_genre` PRIMARY KEY (`genreId`)
+);
+
+Table: invoice
+CREATE TABLE `invoice` (
+    `InvoiceId` INT NOT NULL  ,
+    `CustomerId` INT NOT NULL  ,
+    `InvoiceDate` DATETIME NOT NULL  ,
+    `BillingAddress` VARCHAR(70)   ,
+    `BillingCity` VARCHAR(40)   ,
+    `BillingState` VARCHAR(40)   ,
+    `BillingCountry` VARCHAR(40)   ,
+    `BillingPostalCode` VARCHAR(10)   ,
+    `Total` decimal(10,2) NOT NULL  
+    CONSTRAINT `PK_invoice` PRIMARY KEY (`invoiceId`)
+    CONSTRAINT `FK_invoice_customer` FOREIGN KEY (`CustomerId`) REFERENCES `customer` (`CustomerId`)
+);
+
+Table: invoiceline
+CREATE TABLE `invoiceline` (
+    `InvoiceLineId` INT NOT NULL  ,
+    `InvoiceId` INT NOT NULL  ,
+    `TrackId` INT NOT NULL  ,
+    `UnitPrice` decimal(10,2) NOT NULL  ,
+    `Quantity` INT NOT NULL  
+    CONSTRAINT `PK_invoiceline` PRIMARY KEY (`invoicelineId`)
+    CONSTRAINT `FK_invoiceline_invoice` FOREIGN KEY (`InvoiceId`) REFERENCES `invoice` (`InvoiceId`)
+    CONSTRAINT `FK_invoiceline_track` FOREIGN KEY (`TrackId`) REFERENCES `track` (`TrackId`)
+);
+
+Table: mediatype
+CREATE TABLE `mediatype` (
+    `MediaTypeId` INT NOT NULL  ,
+    `Name` VARCHAR(120)   
+    CONSTRAINT `PK_mediatype` PRIMARY KEY (`mediatypeId`)
+);
+
+Table: playlist
+CREATE TABLE `playlist` (
+    `PlaylistId` INT NOT NULL  ,
+    `Name` VARCHAR(120)   
+    CONSTRAINT `PK_playlist` PRIMARY KEY (`playlistId`)
+);
+
+Table: playlisttrack
+CREATE TABLE `playlisttrack` (
+    `PlaylistId` INT NOT NULL  ,
+    `TrackId` INT NOT NULL  
+    CONSTRAINT `PK_playlisttrack` PRIMARY KEY (`playlisttrackId`)
+    CONSTRAINT `FK_playlisttrack_playlist` FOREIGN KEY (`PlaylistId`) REFERENCES `playlist` (`PlaylistId`)
+    CONSTRAINT `FK_playlisttrack_track` FOREIGN KEY (`TrackId`) REFERENCES `track` (`TrackId`)
+);
+
+Table: track
+CREATE TABLE `track` (
+    `TrackId` INT NOT NULL  ,
+    `Name` VARCHAR(200) NOT NULL  ,
+    `AlbumId` INT   ,
+    `MediaTypeId` INT NOT NULL  ,
+    `GenreId` INT   ,
+    `Composer` VARCHAR(220)   ,
+    `Milliseconds` INT NOT NULL  ,
+    `Bytes` INT   ,
+    `UnitPrice` decimal(10,2) NOT NULL  
+    CONSTRAINT `PK_track` PRIMARY KEY (`trackId`)
+    CONSTRAINT `FK_track_album` FOREIGN KEY (`AlbumId`) REFERENCES `album` (`AlbumId`)
+    CONSTRAINT `FK_track_genre` FOREIGN KEY (`GenreId`) REFERENCES `genre` (`GenreId`)
+    CONSTRAINT `FK_track_mediatype` FOREIGN KEY (`MediaTypeId`) REFERENCES `mediatype` (`MediaTypeId`)
+);
+
