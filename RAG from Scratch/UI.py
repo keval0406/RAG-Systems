@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import json
 import requests
-from langchain.llms import Ollama
+from langchain_community.llms import Ollama
 from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
@@ -22,13 +22,13 @@ def main():
         st.write("File uploaded successfully!")
 
         # Save PDF locally
-        with open("uploaded_file.pdf", "wb") as f:
+        with open(f"./data/{uploaded_file.name}", "wb") as f:
             f.write(uploaded_file.getbuffer())
-        st.write("PDF saved locally as uploaded_file.pdf")
+        st.write(f"PDF saved locally as {uploaded_file.name}")
 
         # Load PDF content
         with st.spinner("Loading PDF content..."):
-            text = extract_text_from_pdf("uploaded_file.pdf")
+            text = extract_text_from_pdf(f"./data/{uploaded_file.name}")
         st.write("PDF content:")
         st.write(text)
 
@@ -53,26 +53,24 @@ def get_answer(question, text):
     vectorstore = initialize_vectorstore(text)
     chain = initialize_qa_chain(llm, vectorstore)
     response = chain({"query": question})
-    return response['result']
+    return response["result"]
 
 
 def initialize_llama3():
     llm = Ollama(
-        base_url='http://localhost:11434',
-        model='llama3',
-        callback_manager=CallbackManager([StreamingStdOutCallbackHandler()])
+        base_url="http://localhost:11434",
+        model="llama3",
+        callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
     )
     return llm
 
 
 def initialize_vectorstore(text):
     model_path = "sentence-transformers/all-MiniLM-l6-v2"
-    model_kwargs = {'device': 'cpu'}
-    encode_kwargs = {'normalize_embeddings': False}
+    model_kwargs = {"device": "cpu"}
+    encode_kwargs = {"normalize_embeddings": False}
     embeddings = HuggingFaceEmbeddings(
-        model_name=model_path,
-        model_kwargs=model_kwargs,
-        encode_kwargs=encode_kwargs
+        model_name=model_path, model_kwargs=model_kwargs, encode_kwargs=encode_kwargs
     )
     vectorstore = FAISS.from_documents(documents=text, embedding=embeddings)
     return vectorstore
@@ -90,14 +88,14 @@ def initialize_qa_chain(llm, vectorstore):
     Helpful Answer:
     """
     PROMPT = PromptTemplate(
- template=prompt_template, input_variables=["context", "question"]
-)
+        template=prompt_template, input_variables=["context", "question"]
+    )
     chain = RetrievalQA.from_chain_type(
         llm,
         retriever=vectorstore.as_retriever(),
         verbose=True,
         return_source_documents=True,
-        chain_type_kwargs={"prompt": PROMPT}
+        chain_type_kwargs={"prompt": PROMPT},
     )
     return chain
 
